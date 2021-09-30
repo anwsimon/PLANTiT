@@ -8,12 +8,24 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-navigation/native": "^6.0.4",
+    "@react-navigation/native-stack": "^6.2.2",
+    "axios": "^0.21.4",
+    "bcrypt": "^5.0.1",
     "expo": "~42.0.1",
     "expo-status-bar": "~1.0.4",
+    "express": "^4.17.1",
+    "pg": "^8.7.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
-    "react-native-web": "~0.13.12"
+    "react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera.git",
+    "react-native-safe-area-context": "^3.2.0",
+    "react-native-screens": "^3.4.0",
+    "react-native-web": "~0.13.12",
+    "react-redux": "^7.2.5",
+    "react-router-dom": "^5.3.0",
+    "sequelize": "^6.6.5"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0"
