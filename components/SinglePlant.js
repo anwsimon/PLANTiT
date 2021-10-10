@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
-import {Text, View, Button, Image, StyleSheet, ScrollView, PointPropType} from 'react-native'
+import {Text, View, Button, Image, StyleSheet} from 'react-native'
 
 const SinglePlant = (props) => {
-  const [isDry, setIsDry] = useState(true)
+  const [isDry, setIsDry] = useState(props.needsWater)
   const [name, setName] = useState('');
 
   return (
@@ -13,7 +13,9 @@ const SinglePlant = (props) => {
       id: props.id,
       name: props.name,
       species: props.species,
-      image: props.image
+      image: props.image,
+      lastWatered: props.lastWatered,
+      needsWater: props.needsWater
       })}} style = {styles.plantName}>{props.name}</Text>
 
     <Button onPress = {() => {

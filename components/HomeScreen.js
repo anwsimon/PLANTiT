@@ -18,6 +18,20 @@ const HomeScreen = ({ navigation }) => {
         navigation.navigate('Profile', { name: 'Profile' })
       }
     />
+
+    <Button
+      title="Upload Image"
+      onPress={() =>
+        navigation.navigate('Upload Image', { name: 'Upload Image' })
+      }
+    />
+
+    <Button
+      title="Identify A Plant"
+      onPress={() =>
+        navigation.navigate('Identify A Plant', { name: 'Identify A Plant' })
+      }
+    />
     </View>
   );
 };

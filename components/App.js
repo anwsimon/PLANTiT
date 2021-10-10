@@ -1,15 +1,15 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import { ListViewBase, ScrollView, StyleSheet, Text, View, SafeAreaView } from 'react-native';
-import SinglePlant from './SinglePlant';
+import React from 'react';
+import { StyleSheet} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './HomeScreen'
 import Nursery from './Nursery'
 import ProfileScreen from './Profile'
 import Details from './Details'
+import Google from './GoogleVision'
+import PlantId from './PlantId'
+import PlantIdEx from './PlantIdExample'
 const Stack = createNativeStackNavigator();
-
 
 export default function App() {
 
@@ -42,11 +42,22 @@ export default function App() {
         component={ProfileScreen}
         options={{ title: 'Profile' }}
          />
+				 <Stack.Screen
+        name="Identify A Plant"
+        component={PlantId}
+        options={{ title: 'Identify A Plant' }}
+         />
+				 <Stack.Screen
+        name="Upload Image"
+        component={Google}
+        options={{ title: 'Upload Image' }}
+         />
          <Stack.Screen
         name="Details"
         component={Details}
         options={{ title: 'Details' }}
          />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
