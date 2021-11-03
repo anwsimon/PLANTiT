@@ -1,7 +1,5 @@
 import React from 'react';
 import 'react-native-get-random-values';
-import { Buffer } from 'buffer';
-// import  FileReader from 'filereader'
 import {
 	ActivityIndicator,
 	Button,
@@ -11,7 +9,7 @@ import {
 	Share,
 	StyleSheet,
 	Text,
-	ScrollView,
+	SafeAreaView,
 	View
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker'
@@ -20,7 +18,6 @@ import firebase from '../config/firebase';
 import {v4 as uuidv4} from 'uuid'
 import * as MediaLibrary from 'expo-media-library';
 import * as Camera from 'expo-camera';
-import data from './Data'
 export default class PlantId extends React.Component {
 	state = {
 		image: null,
@@ -40,7 +37,7 @@ export default class PlantId extends React.Component {
 
 		return (
 			<View style={styles.container}>
-				<ScrollView
+				<SafeAreaView
 					style={styles.container}
 					contentContainerStyle={styles.contentContainer}
 				>
@@ -57,18 +54,10 @@ export default class PlantId extends React.Component {
 						/>
 
 						<Button onPress={this._takePhoto} title="Take a photo" />
-						{this.state.plantIdResponse && (
-							<FlatList
-								data={this.state.plantIdResponse.responses[0].labelAnnotations}
-								extraData={this.state}
-								keyExtractor={this._keyExtractor}
-								renderItem={({ item }) => <Text>Item: {item.description}</Text>}
-							/>
-						)}
 						{this._maybeRenderImage()}
 						{this._maybeRenderUploadingOverlay()}
 					</View>
-				</ScrollView>
+				</SafeAreaView>
 			</View>
 		);
 	}
@@ -117,12 +106,6 @@ export default class PlantId extends React.Component {
 					elevation: 2
 				}}
 			>
-				<Button
-					style={{ marginBottom: 10 }}
-					onPress={() => this.submitToPlantId()}
-					title="Analyze!"
-				/>
-
 				<View
 					style={{
 						borderTopRightRadius: 3,
@@ -135,24 +118,36 @@ export default class PlantId extends React.Component {
 					}}
 				>
 					<Image source={{ uri: image }} style={{ width: 250, height: 250 }} />
-				</View>
-				<Text
-					onPress={this._copyToClipboard}
-					onLongPress={this._share}
-					style={{ paddingVertical: 10, paddingHorizontal: 10 }}
+					<Button
+					style={{ marginBottom: 10 }}
+					onPress={() => this.submitToPlantId()}
+					title="Analyze!"
 				/>
+				</View>
 
-				<Text>Raw JSON:</Text>
+					{plantIdResponse && (
+						<View>
+							<FlatList
+								data={this.state.plantIdResponse}
+								renderItem={({ item }) =>
+								{if (item.plant_details.common_names) {
+									return (
+										<View>
+											<Text>This is a {item.plant_name}. Otherwise known as a {item.plant_details.common_names[0]}.
+											</Text>
+											<Text>{item.plant_details.wiki_description.value}</Text>
+										</View>)
+								} else {
+									return (
+									<View>
+										<Text>{item.plant_name}</Text>
+									</View>)
+								}}}
+								keyExtractor={(item, index) => index.toString()}
+							/>
+						</View>
+						)}
 
-				{plantIdResponse && (
-					<Text
-						onPress={this._copyToClipboard}
-						onLongPress={this._share}
-						style={{ paddingVertical: 10, paddingHorizontal: 10 }}
-					>
-						JSON.stringify(plantIdResponse.responses)
-					</Text>
-				)}
 			</View>
 		);
 	};
@@ -196,8 +191,6 @@ export default class PlantId extends React.Component {
 	_handleImagePicked = async pickerResult => {
 		try {
 			this.setState({ uploading: true });
-			console.log("PICKER RESULT", pickerResult.uri)
-
 
 			if (!pickerResult.cancelled) {
 				let uploadURL = await uploadImageAsync(pickerResult.uri);
@@ -229,22 +222,20 @@ export default class PlantId extends React.Component {
 	submitToPlantId = async () => {
 		try {
 			this.setState({ uploading: true });
-			let { image } = this.state;
       const data = {
         api_key: Environment['PLANT_ID_API_KEY'],
-        image: this.state.base64Image
-        // modifiers: ["crops_fast", "similar_images"],
-        // plant_language: "en",
-        // plant_details: ["common_names",
-        //                   "url",
-        //                   "name_authority",
-        //                   "wiki_description",
-        //                   "taxonomy",
-        //                   "synonyms"]
+        images: [this.state.base64Image],
+        modifiers: ["crops_fast", "similar_images"],
+        plant_language: "en",
+        plant_details: ["common_names",
+                          "url",
+                          "name_authority",
+                          "wiki_description",
+                          "taxonomy",
+                          "synonyms"]
       };
-      console.log("DATA", data)
 			let idResponse = await fetch(
-				'https://api.plant.id/v2/enqueue_identification',
+				'https://api.plant.id/v2/identify',
 				{
           method: 'POST',
 					headers: {
@@ -253,17 +244,17 @@ export default class PlantId extends React.Component {
 					body: JSON.stringify(data)
 				}
 			);
-      console.log("DATA AFTER FETCH", data)
 
 			let responseJson = await idResponse.json().then(data => {
         console.log('Success', data)
+				this.setState({
+					plantIdResponse: data.suggestions,
+					uploading: false
+				})
+				console.log("PLANTIDRESPONSE IN STATE", this.state.plantIdResponse)
       }).catch((error) => {
         console.error('Error', error)
       })
-			this.setState({
-				plantIdResponse: responseJson,
-				uploading: false
-			});
 		} catch (error) {
 			console.log(error);
 		}
